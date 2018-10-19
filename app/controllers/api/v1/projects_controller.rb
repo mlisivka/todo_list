@@ -1,4 +1,5 @@
 class Api::V1::ProjectsController < ApplicationController
+  before_action :find_project, only: [:destroy, :update]
   def create
     @project = Project.new(project_attributes)
     @project.user = User.find(project_user[:id])
@@ -12,13 +13,24 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def destroy
-    @project = Project.find(params[:id])
-    if @project.destroy
-      render json: {}, status: :no_content
+    @project.destroy
+    head :no_content
+  end
+
+  def update
+    if @project
+      @project.update_attributes(project_attributes)
+      render json: @project, status: :ok
+    else
+      render json: {}, status: :not_found
     end
   end
 
   private
+
+  def find_project
+    @project = Project.find_by_id(params[:id])
+  end
 
   def project_params
     params.require(:data).permit(:type, {

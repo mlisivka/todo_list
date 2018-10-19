@@ -2,6 +2,13 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::ProjectsController, type: :controller do
   let(:user) { create(:user) }
+  let(:relationships) do
+    {
+      user: {
+        data: {type: 'user', id: user.id}
+      }
+    }
+  end
 
   describe '#create' do
     let(:params) do
@@ -11,11 +18,7 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
           attributes: {
             name: 'First Project'
           },
-          relationships: {
-            user: {
-              data: {type: 'user', id: user.id}
-            }
-          }
+          relationships: relationships
         }
       }
     end
@@ -55,11 +58,7 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
             attributes: {
               name: ''
             },
-            relationships: {
-              user: {
-                data: {type: 'user', id: user.id}
-              }
-            }
+            relationships: relationships
           }
         }
       end
@@ -89,6 +88,47 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
 
       expect{ delete :destroy, params: { id: project.id } }
         .to change(Project, :count).by(-1)
+    end
+  end
+
+  describe '#update' do
+    let(:params) do
+      {
+        id: project_id,
+        data: {
+          type: 'projects',
+          id: project_id,
+          attributes: {
+            name: 'New Name'
+          },
+          relationships: relationships
+        }
+      }
+    end
+
+    context 'when there is a project' do
+      let(:project) { create(:project, user: user) }
+      let(:project_id) { project.id }
+
+      it 'returns http success' do
+        put :update, params: params
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'changes a project name' do
+        put :update, params: params
+        project.reload
+        expect(project.name).to eq 'New Name'
+      end
+    end
+
+    context 'when project not found' do
+      let(:project_id) { 999 }
+
+      it 'returns http not_found' do
+        put :update, params: params
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end
