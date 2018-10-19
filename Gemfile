@@ -37,6 +37,7 @@ group :development, :test do
   gem 'database_cleaner'
 end
 
+gem 'apipie-rails'
 gem 'devise'
 gem 'devise_token_auth'
 
