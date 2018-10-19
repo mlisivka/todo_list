@@ -18,4 +18,5 @@ class User < ActiveRecord::Base
   validates :password, confirmation: { message: 'Password and Confirm ' \
                                        'password fields doesn’t match.' }
 
+  has_many :projects, dependent: :destroy
 end
