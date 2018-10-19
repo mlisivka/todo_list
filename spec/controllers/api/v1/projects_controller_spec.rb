@@ -1,8 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::ProjectsController, type: :controller do
+  let(:user) { create(:user) }
+
   describe '#create' do
-    let(:user) { create(:user) }
     let(:params) do
       {
         data: {
@@ -72,6 +73,22 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
         post :create, params: params
         expect(errors[0]['detail']).to eq 'The field is required.'
       end
+    end
+  end
+
+  describe '#destroy' do
+    it 'returns http no_content' do
+      project = create(:project, user: user)
+
+      delete :destroy, params: { id: project.id }
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it 'deletes a project' do
+      project = create(:project, user: user)
+
+      expect{ delete :destroy, params: { id: project.id } }
+        .to change(Project, :count).by(-1)
     end
   end
 end

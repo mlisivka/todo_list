@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1, path: '' do
-      resource :projects, only: %i[create update destroy]
+      resources :projects
     end
   end
 end

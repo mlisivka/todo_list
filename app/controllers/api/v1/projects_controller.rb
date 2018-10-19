@@ -11,6 +11,13 @@ class Api::V1::ProjectsController < ApplicationController
     end
   end
 
+  def destroy
+    @project = Project.find(params[:id])
+    if @project.destroy
+      render json: {}, status: :no_content
+    end
+  end
+
   private
 
   def project_params
