@@ -1,0 +1,4 @@
+en:
+  devise_token_auth:
+    sessions:
+      bad_credentials: 'Incorrect login or(and) password'
