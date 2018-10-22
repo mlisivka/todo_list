@@ -149,6 +149,53 @@ RSpec.describe Api::V1::TasksController, type: :controller do
         end
       end
     end
+
+    context 'with due_date attribute' do
+      let(:task) { create(:task) }
+      let(:params) do
+        {
+          id: task.id,
+          project_id: project.id,
+          data: {
+            type: 'tasks',
+            attributes: {
+              due_date: time
+            },
+            relationships: relationships
+          }
+        }
+      end
+
+      context 'when date is in the future' do
+        let(:time) { (Time.now + 1.day).change(sec: 0) }
+
+        it 'returns http success' do
+          patch :update, params: params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'updates due_date' do
+          patch :update, params: params
+          task.reload
+          expect(task.due_date).to eq time
+        end
+      end
+
+      context 'when date is in the past' do
+        let(:time) { (Time.now - 1.day).change(sec: 0) }
+
+        it 'returns http unprocessable_entity' do
+          patch :update, params: params
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'returns error' do
+          patch :update, params: params
+          task.reload
+          expect(errors[0]['detail']).to eq "The time can't be in the past"
+        end
+      end
+    end
   end
 
   describe '#destroy' do
