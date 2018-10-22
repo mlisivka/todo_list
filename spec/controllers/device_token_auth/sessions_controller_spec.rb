@@ -21,9 +21,7 @@ RSpec.describe DeviseTokenAuth::SessionsController, type: :controller do
     end
 
     context 'when username and password are correct' do
-      it 'returns http success' do
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'returns http status', :success
     end
 
     context 'when username is incorrect' do
@@ -32,9 +30,7 @@ RSpec.describe DeviseTokenAuth::SessionsController, type: :controller do
           password: user.password }
       end
 
-      it 'returns http unauthorized' do
-        expect(response).to have_http_status(:unauthorized)
-      end
+      it_behaves_like 'returns http status', :unauthorized
 
       it 'returns error' do
         expect(errors[0]).to eq 'Incorrect login or(and) password'
@@ -47,9 +43,7 @@ RSpec.describe DeviseTokenAuth::SessionsController, type: :controller do
           password: 'bad_pass' }
       end
 
-      it 'returns http unauthorized' do
-        expect(response).to have_http_status(:unauthorized)
-      end
+      it_behaves_like 'returns http status', :unauthorized
 
       it 'returns error' do
         expect(errors[0]).to eq 'Incorrect login or(and) password'

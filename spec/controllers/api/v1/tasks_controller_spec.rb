@@ -49,13 +49,13 @@ RSpec.describe Api::V1::TasksController, type: :controller do
         }
       end
 
-      it 'returns http unprocessable_entity' do
+      before do
         post :create, params: params
-        expect(response).to have_http_status(:unprocessable_entity)
       end
 
+      it_behaves_like 'returns http status', :unprocessable_entity
+
       it 'returns error' do
-        post :create, params: params
         expect(errors[0]['detail']).to eq 'The field is required.'
       end
     end
@@ -77,17 +77,17 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       }
     end
 
+    before do
+      patch :update, params: params
+    end
+
     context 'when there is a task' do
       let(:task) { create(:task, project: project) }
       let(:task_id) { task.id }
 
-      it 'returns http success' do
-        put :update, params: params
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'returns http status', :success
 
       it 'changes a task name' do
-        put :update, params: params
         task.reload
         expect(task.name).to eq 'New Name'
       end
@@ -96,10 +96,7 @@ RSpec.describe Api::V1::TasksController, type: :controller do
     context 'when task not found' do
       let(:task_id) { 999 }
 
-      it 'returns http not_found' do
-        put :update, params: params
-        expect(response).to have_http_status(:not_found)
-      end
+      it_behaves_like 'returns http status', :not_found
     end
 
     context 'with done attribute' do
@@ -121,13 +118,9 @@ RSpec.describe Api::V1::TasksController, type: :controller do
         let(:task) { create(:task, done: false) }
         let(:done) { true }
 
-        it 'returns http success' do
-          patch :update, params: params
-          expect(response).to have_http_status(:ok)
-        end
+        it_behaves_like 'returns http status', :success
 
         it 'mark as done' do
-          patch :update, params: params
           task.reload
           expect(task.done).to be_truthy
         end
@@ -137,13 +130,9 @@ RSpec.describe Api::V1::TasksController, type: :controller do
         let(:task) { create(:task, done: true) }
         let(:done) { false }
 
-        it 'returns http success' do
-          patch :update, params: params
-          expect(response).to have_http_status(:ok)
-        end
+        it_behaves_like 'returns http status', :success
 
         it 'mark as not done' do
-          patch :update, params: params
           task.reload
           expect(task.done).to be_falsey
         end
@@ -169,13 +158,9 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       context 'when date is in the future' do
         let(:time) { (Time.now + 1.day).change(sec: 0) }
 
-        it 'returns http success' do
-          patch :update, params: params
-          expect(response).to have_http_status(:ok)
-        end
+        it_behaves_like 'returns http status', :success
 
         it 'updates due_date' do
-          patch :update, params: params
           task.reload
           expect(task.due_date).to eq time
         end
@@ -184,13 +169,9 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       context 'when date is in the past' do
         let(:time) { (Time.now - 1.day).change(sec: 0) }
 
-        it 'returns http unprocessable_entity' do
-          patch :update, params: params
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        it_behaves_like 'returns http status', :unprocessable_entity
 
         it 'returns error' do
-          patch :update, params: params
           task.reload
           expect(errors[0]['detail']).to eq "The time can't be in the past"
         end
@@ -199,16 +180,14 @@ RSpec.describe Api::V1::TasksController, type: :controller do
   end
 
   describe '#destroy' do
-    it 'returns http no_content' do
-      task = create(:task, project: project)
+    let!(:task) { create(:task, project: project) }
 
+    it 'returns http no_content' do
       delete :destroy, params: { id: task.id, project_id: project.id }
       expect(response).to have_http_status(:no_content)
     end
 
     it 'deletes a task' do
-      task = create(:task, project: project)
-
       expect{ delete :destroy, params: { id: task.id, project_id: project.id } }
         .to change(Task, :count).by(-1)
     end

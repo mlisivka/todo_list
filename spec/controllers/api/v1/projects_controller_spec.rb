@@ -37,15 +37,12 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
     context 'when name is not unique' do
       before do
         create(:project, name: 'First Project', user: user)
+        post :create, params: params
       end
 
-      it 'returns http unprocessable_entity' do
-        post :create, params: params
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
+      it_behaves_like 'returns http status', :unprocessable_entity
 
       it 'returns error' do
-        post :create, params: params
         expect(errors[0]['detail']).to eq 'The project with such name does already exist.'
       end
     end
@@ -63,29 +60,27 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
         }
       end
 
-      it 'returns http unprocessable_entity' do
+      before do
         post :create, params: params
-        expect(response).to have_http_status(:unprocessable_entity)
       end
 
+      it_behaves_like 'returns http status', :unprocessable_entity
+
       it 'returns error' do
-        post :create, params: params
         expect(errors[0]['detail']).to eq 'The field is required.'
       end
     end
   end
 
   describe '#destroy' do
-    it 'returns http no_content' do
-      project = create(:project, user: user)
+    let!(:project) { create(:project, user: user) }
 
+    it 'returns http no_content' do
       delete :destroy, params: { id: project.id }
       expect(response).to have_http_status(:no_content)
     end
 
     it 'deletes a project' do
-      project = create(:project, user: user)
-
       expect{ delete :destroy, params: { id: project.id } }
         .to change(Project, :count).by(-1)
     end
@@ -106,17 +101,17 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
       }
     end
 
+    before do
+      patch :update, params: params
+    end
+
     context 'when there is a project' do
       let(:project) { create(:project, user: user) }
       let(:project_id) { project.id }
 
-      it 'returns http success' do
-        put :update, params: params
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'returns http status', :success
 
       it 'changes a project name' do
-        put :update, params: params
         project.reload
         expect(project.name).to eq 'New Name'
       end
@@ -125,10 +120,7 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
     context 'when project not found' do
       let(:project_id) { 999 }
 
-      it 'returns http not_found' do
-        put :update, params: params
-        expect(response).to have_http_status(:not_found)
-      end
+      it_behaves_like 'returns http status', :not_found
     end
   end
 end
