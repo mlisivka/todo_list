@@ -16,7 +16,7 @@ class Api::V1::TasksController < ApplicationController
   def update
     if @task
       @task.update_attributes(task_attributes)
-      render json: @task, status: :ok
+      head :ok
     else
       render json: {}, status: :not_found
     end
@@ -35,7 +35,7 @@ class Api::V1::TasksController < ApplicationController
 
   def task_params
     params.require(:data).permit(:type, {
-      attributes: [:name],
+      attributes: [:name, :done],
       relationships: { project: { data: [:id, :type]}}})
   end
 

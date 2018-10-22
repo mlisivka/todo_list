@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :task do
-    name { Faker::Lorem.word }
+    sequence(:name) { |n| "Task ##{n}" }
     association(:project)
   end
 end

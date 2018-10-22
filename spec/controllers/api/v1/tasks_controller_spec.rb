@@ -101,6 +101,54 @@ RSpec.describe Api::V1::TasksController, type: :controller do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    context 'with done attribute' do
+      let(:params) do
+        {
+          id: task.id,
+          project_id: project.id,
+          data: {
+            type: 'tasks',
+            attributes: {
+              done: done
+            },
+            relationships: relationships
+          }
+        }
+      end
+
+      context 'when a task was marked as not done' do
+        let(:task) { create(:task, done: false) }
+        let(:done) { true }
+
+        it 'returns http success' do
+          patch :update, params: params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'mark as done' do
+          patch :update, params: params
+          task.reload
+          expect(task.done).to be_truthy
+        end
+      end
+
+      context 'when a task was marked as done' do
+        let(:task) { create(:task, done: true) }
+        let(:done) { false }
+
+        it 'returns http success' do
+          patch :update, params: params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'mark as not done' do
+          patch :update, params: params
+          task.reload
+          expect(task.done).to be_falsey
+        end
+      end
+    end
   end
 
   describe '#destroy' do
