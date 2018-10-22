@@ -4,6 +4,9 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable
   include DeviseTokenAuth::Concerns::User
 
+  has_many :projects, dependent: :destroy
+  has_many :comments, dependent: :destroy
+
   validates :username, :password, :password_confirmation,
     presence: { message: 'The field is required.' }
   validates :username,
@@ -17,6 +20,4 @@ class User < ActiveRecord::Base
                 "The length should be %{count} characters, alphanumeric."}
   validates :password, confirmation: { message: 'Password and Confirm ' \
                                        'password fields doesn’t match.' }
-
-  has_many :projects, dependent: :destroy
 end

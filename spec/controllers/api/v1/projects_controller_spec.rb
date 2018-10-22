@@ -5,7 +5,7 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
   let(:relationships) do
     {
       user: {
-        data: {type: 'user', id: user.id}
+        data: {type: 'users', id: user.id}
       }
     }
   end

@@ -1,8 +1,11 @@
 class Task < ApplicationRecord
+  belongs_to :project
+  has_many :comments, dependent: :destroy
+
   validates :name, presence: { message: 'The field is required.' }
   validate :due_date_cannot_be_in_the_past
 
-  belongs_to :project
+  private
 
   def due_date_cannot_be_in_the_past
     if due_date.present? && due_date < Date.today

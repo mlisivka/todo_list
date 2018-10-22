@@ -5,7 +5,7 @@ RSpec.describe Api::V1::TasksController, type: :controller do
   let(:relationships) do
     {
       project: {
-        data: {type: 'project', id: project.id}
+        data: {type: 'projects', id: project.id}
       }
     }
   end
