@@ -1,4 +1,6 @@
 class Api::V1::TasksController < ApplicationController
+  before_action :find_task, only: [:update]
+
   def create
     @task = Task.new(task_attributes)
     @task.project = Project.find(task_project[:id])
@@ -11,7 +13,20 @@ class Api::V1::TasksController < ApplicationController
     end
   end
 
+  def update
+    if @task
+      @task.update_attributes(task_attributes)
+      render json: @task, status: :ok
+    else
+      render json: {}, status: :not_found
+    end
+  end
+
   private
+
+  def find_task
+    @task = Task.find_by_id(params[:id])
+  end
 
   def task_params
     params.require(:data).permit(:type, {

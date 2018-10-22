@@ -60,4 +60,46 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       end
     end
   end
+
+  describe '#update' do
+    let(:params) do
+      {
+        project_id: project.id,
+        id: task_id,
+        data: {
+          type: 'tasks',
+          id: task_id,
+          attributes: {
+            name: 'New Name'
+          },
+          relationships: relationships
+        }
+      }
+    end
+
+    context 'when there is a task' do
+      let(:task) { create(:task, project: project) }
+      let(:task_id) { task.id }
+
+      it 'returns http success' do
+        put :update, params: params
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'changes a task name' do
+        put :update, params: params
+        task.reload
+        expect(task.name).to eq 'New Name'
+      end
+    end
+
+    context 'when task not found' do
+      let(:task_id) { 999 }
+
+      it 'returns http not_found' do
+        put :update, params: params
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
