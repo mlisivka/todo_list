@@ -6,4 +6,5 @@ class Project < ApplicationRecord
   validates :name, presence: { message: 'The field is required.' }
 
   belongs_to :user
+  has_many :tasks
 end
