@@ -1,5 +1,5 @@
 class Api::V1::TasksController < ApplicationController
-  before_action :find_task, only: [:update]
+  before_action :find_task, only: [:destroy, :update]
 
   def create
     @task = Task.new(task_attributes)
@@ -20,6 +20,11 @@ class Api::V1::TasksController < ApplicationController
     else
       render json: {}, status: :not_found
     end
+  end
+
+  def destroy
+    @task.destroy
+    head :no_content
   end
 
   private

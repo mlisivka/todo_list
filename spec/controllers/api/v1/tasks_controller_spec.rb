@@ -102,4 +102,20 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       end
     end
   end
+
+  describe '#destroy' do
+    it 'returns http no_content' do
+      task = create(:task, project: project)
+
+      delete :destroy, params: { id: task.id, project_id: project.id }
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it 'deletes a task' do
+      task = create(:task, project: project)
+
+      expect{ delete :destroy, params: { id: task.id, project_id: project.id } }
+        .to change(Task, :count).by(-1)
+    end
+  end
 end
