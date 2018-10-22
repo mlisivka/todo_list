@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Api::V1::CommentsController, type: :controller do
   let(:user) { create(:user) }
   let(:task) { create(:task) }
+  let(:project) { task.project }
   let(:relationships) do
     {
       user: {
@@ -16,7 +17,7 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
 
   def params_with_body(body)
     {
-      project_id: task.project.id,
+      project_id: project.id,
       task_id: task.id,
       data: {
         type: 'comment',
@@ -54,6 +55,27 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
       it 'returns error' do
         expect(errors[0]['detail']).to eq 'The field is required.'
       end
+    end
+  end
+
+  describe '#destroy' do
+    let!(:comment) { create(:comment, task: task, user: user) }
+    let(:params) do
+      {
+        id: comment.id,
+        task_id: task.id,
+        project_id: project.id
+      }
+    end
+
+    it 'returns http no_content' do
+      delete :destroy, params: params
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it 'deletes a task' do
+      expect { delete :destroy, params: params }
+        .to change(Comment, :count).by(-1)
     end
   end
 end
