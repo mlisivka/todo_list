@@ -1,4 +1,4 @@
-class ApplicationController < ActionController::API
+class ApplicationController < JSONAPI::ResourceController
   include DeviseTokenAuth::Concerns::SetUserByToken
   before_action :configure_permitted_parameters, if: :devise_controller?
 
@@ -6,6 +6,15 @@ class ApplicationController < ActionController::API
     render json: {
       errors: ErrorSerializer.serialize(object)
     }, status: :unprocessable_entity
+  end
+
+  def json_resource(klass, record, context = nil)
+    JSONAPI::ResourceSerializer.new(klass).serialize_to_hash(klass.new(record, context))
+  end
+
+  def json_resources(klass, records, context = nil)
+    resources = records.map { |record| klass.new(record, context) }
+    JSONAPI::ResourceSerializer.new(klass).serialize_to_hash(resources)
   end
 
   protected

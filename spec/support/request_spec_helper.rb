@@ -3,6 +3,10 @@ module RequestSpecHelper
     json['errors']
   end
 
+  def data
+    json['data']
+  end
+
   def json
     JSON.parse(response.body)
   end

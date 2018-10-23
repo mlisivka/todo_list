@@ -4,9 +4,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1, path: '' do
-      resources :projects do
-        resources :tasks do
-          resources :comments
+      jsonapi_resources :projects do
+        jsonapi_resources :tasks do
+          jsonapi_resources :comments
         end
       end
     end

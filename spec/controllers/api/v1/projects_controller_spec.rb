@@ -10,6 +10,38 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
     }
   end
 
+  describe '#index' do
+    let!(:project) { create(:project, user: user) }
+
+    before do
+      get :index
+    end
+
+    it_behaves_like 'respond body JSON with attributes'
+
+    it 'returns correct data' do
+      id = data[0]['id'].to_i
+      expect(id).to eq project.id
+      expect(data[0]['type']).to eq 'projects'
+    end
+  end
+
+  describe '#show' do
+    let!(:project) { create(:project, user: user) }
+
+    before do
+      get :show, params: { id: project.id }
+    end
+
+    it_behaves_like 'respond body JSON with attributes'
+
+    it 'returns correct data' do
+      id = data['id'].to_i
+      expect(id).to eq project.id
+      expect(data['type']).to eq 'projects'
+    end
+  end
+
   describe '#create' do
     let(:params) do
       {

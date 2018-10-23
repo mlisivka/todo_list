@@ -1,5 +1,5 @@
 class Api::V1::ProjectsController < ApplicationController
-  before_action :find_project, only: [:destroy, :update]
+  before_action :find_project, only: [:show, :destroy, :update]
 
   def_param_group :project do
     param :data, Hash do
@@ -8,6 +8,15 @@ class Api::V1::ProjectsController < ApplicationController
         param :name, String, 'The name of a new project'
       end
     end
+  end
+
+  def index
+    @projects = Project.all
+    render json: json_resources(Api::V1::ProjectResource, @projects)
+  end
+
+  def show
+    render json: json_resource(Api::V1::ProjectResource, @project)
   end
 
   api :POST, '/projects', 'Create a project'
@@ -19,8 +28,8 @@ class Api::V1::ProjectsController < ApplicationController
     @project.user = User.find(project_user[:id])
 
     if @project.save
-      render json: @project, status: :created,
-        location: api_v1_projects_url(@project)
+      render json: json_resource(Api::V1::ProjectResource, @project),
+        status: :created
     else
       respond_with_errors(@project)
     end
@@ -31,7 +40,7 @@ class Api::V1::ProjectsController < ApplicationController
   def update
     if @project
       @project.update_attributes(project_attributes)
-      render json: @project, status: :ok
+      render json: json_resource(Api::V1::ProjectResource, @project)
     else
       render json: {}, status: :not_found
     end
