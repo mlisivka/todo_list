@@ -1,13 +1,22 @@
 class Api::V1::TasksController < ApplicationController
-  before_action :find_task, only: [:destroy, :update]
+  before_action :find_task, only: [:show, :destroy, :update]
+
+  def index
+    @tasks = Task.all
+    render json: json_resources(Api::V1::TaskResource, @tasks)
+  end
+
+  def show
+    render json: json_resource(Api::V1::TaskResource, @task)
+  end
 
   def create
     @task = Task.new(task_attributes)
     @task.project = Project.find(task_project[:id])
 
     if @task.save
-      render json: @task, status: :created,
-        location: api_v1_project_tasks_url(@task)
+      render json: json_resource(Api::V1::TaskResource, @task),
+        status: :created
     else
       respond_with_errors(@task)
     end
@@ -21,7 +30,7 @@ class Api::V1::TasksController < ApplicationController
         respond_with_errors(@task)
       end
     else
-      render json: {}, status: :not_found
+      head :not_found
     end
   end
 

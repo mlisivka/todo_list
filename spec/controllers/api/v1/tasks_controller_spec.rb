@@ -10,6 +10,38 @@ RSpec.describe Api::V1::TasksController, type: :controller do
     }
   end
 
+  describe '#index' do
+    let!(:task) { create(:task, project: project) }
+
+    before do
+      get :index, params: { project_id: project.id }
+    end
+
+    it_behaves_like 'respond body JSON with attributes'
+
+    it 'returns correct data' do
+      id = data[0]['id'].to_i
+      expect(id).to eq task.id
+      expect(data[0]['type']).to eq 'tasks'
+    end
+  end
+
+  describe '#show' do
+    let!(:task) { create(:task, project: project) }
+
+    before do
+      get :show, params: { id: task.id, project_id: project.id }
+    end
+
+    it_behaves_like 'respond body JSON with attributes'
+
+    it 'returns correct data' do
+      id = data['id'].to_i
+      expect(id).to eq task.id
+      expect(data['type']).to eq 'tasks'
+    end
+  end
+
   describe '#create' do
     let(:params) do
       {
