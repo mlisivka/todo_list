@@ -1,5 +1,7 @@
 class Api::V1::CommentsController < ApplicationController
+  include Api::V1::CommentsDoc
   before_action :find_comment, only: [:show, :destroy]
+
   def index
     @comments = Comment.all
     render json: json_resources(Api::V1::CommentResource, @comments, options: { include: ['task', 'user'] })

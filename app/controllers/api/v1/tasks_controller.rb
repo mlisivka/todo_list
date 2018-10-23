@@ -1,4 +1,5 @@
 class Api::V1::TasksController < ApplicationController
+  include Api::V1::TasksDoc
   before_action :find_task, only: [:show, :destroy, :update]
 
   def index
