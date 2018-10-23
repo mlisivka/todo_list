@@ -1,4 +1,15 @@
 class Api::V1::CommentsController < ApplicationController
+  before_action :find_comment, only: [:show, :destroy]
+  def index
+    @comments = Comment.all
+    render json: json_resources(Api::V1::CommentResource, @comments, options: { include: ['task', 'user'] })
+
+  end
+
+  def show
+    render json: json_resource(Api::V1::CommentResource, @comment, options: { include: ['task', 'user'] })
+  end
+
   def create
     @comment = Comment.new(comment_attributes)
     @comment.user = User.find(comment_user[:id])
@@ -6,20 +17,23 @@ class Api::V1::CommentsController < ApplicationController
     @comment.image = comment_image[:image]
 
     if @comment.save
-      render json: @comment, status: :created,
-        location: api_v1_project_task_comments_url(@comment)
+      render json: json_resource(Api::V1::CommentResource, @comment),
+        status: :created
     else
       respond_with_errors(@comment)
     end
   end
 
   def destroy
-    @comment = Comment.find(params[:id])
     @comment.destroy
     head :no_content
   end
 
   private
+
+  def find_comment
+    @comment = Comment.find(params[:id])
+  end
 
   def comment_attributes
     comment_params[:attributes] || {}

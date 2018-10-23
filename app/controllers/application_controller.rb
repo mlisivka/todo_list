@@ -8,13 +8,13 @@ class ApplicationController < JSONAPI::ResourceController
     }, status: :unprocessable_entity
   end
 
-  def json_resource(klass, record, context = nil)
-    JSONAPI::ResourceSerializer.new(klass).serialize_to_hash(klass.new(record, context))
+  def json_resource(klass, record, context = nil, options: {})
+    JSONAPI::ResourceSerializer.new(klass, options).serialize_to_hash(klass.new(record, context))
   end
 
-  def json_resources(klass, records, context = nil)
+  def json_resources(klass, records, context = nil, options: {})
     resources = records.map { |record| klass.new(record, context) }
-    JSONAPI::ResourceSerializer.new(klass).serialize_to_hash(resources)
+    JSONAPI::ResourceSerializer.new(klass, options).serialize_to_hash(resources)
   end
 
   protected

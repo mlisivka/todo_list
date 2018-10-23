@@ -4,6 +4,8 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
   let(:user) { create(:user) }
   let(:task) { create(:task) }
   let(:project) { task.project }
+  let(:file_format) { 'image/jpg' }
+  let(:file_path) { 'spec/fixtures/images/ruby.jpg' }
   let(:relationships) do
     {
       user: {
@@ -15,21 +17,101 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
     }
   end
 
-  def params_with_body(body)
-    {
-      project_id: project.id,
-      task_id: task.id,
-      data: {
-        type: 'comments',
-        attributes: {
-          body: body
-        },
-        relationships: relationships
-      }
-    }
+  describe '#index' do
+    let!(:comment) do
+      create(:comment, task: task, user: user,
+        image: fixture_file_upload(file_path, file_format))
+    end
+
+    before do
+      get :index, params: { project_id: project.id, task_id: task.id }
+    end
+
+    it_behaves_like 'respond body JSON with attributes'
+
+    it 'returns correct data' do
+      id = data[0]['id'].to_i
+      expect(data[0]['type']).to eq 'comments'
+      expect(id).to eq comment.id
+    end
+
+    it 'returns with task relationsps' do
+      task_data = data[0]['relationships']['task']['data']
+      task_id = task_data['id'].to_i
+
+      expect(task_id).to eq task.id
+      expect(task_data['type']).to eq 'tasks'
+    end
+
+    it 'returns with user relationsps' do
+      user_data = data[0]['relationships']['user']['data']
+      user_id = user_data['id'].to_i
+
+      expect(user_id).to eq user.id
+      expect(user_data['type']).to eq 'users'
+    end
+
+    it 'returns image' do
+      image = data[0]['attributes']['image']
+      expect(image['url']).to be_present
+    end
+  end
+
+  describe '#show' do
+    let!(:comment) do
+      create(:comment, task: task, user: user,
+        image: fixture_file_upload(file_path, file_format))
+    end
+
+    before do
+      get :show, params: { id: comment.id, project_id: project.id, task_id: task.id }
+    end
+
+    it_behaves_like 'respond body JSON with attributes'
+
+    it 'returns correct data' do
+      id = data['id'].to_i
+      expect(id).to eq comment.id
+      expect(data['type']).to eq 'comments'
+    end
+
+    it 'returns with task relationsps' do
+      task_data = data['relationships']['task']['data']
+      task_id = task_data['id'].to_i
+
+      expect(task_id).to eq task.id
+      expect(task_data['type']).to eq 'tasks'
+    end
+
+    it 'returns with user relationsps' do
+      user_data = data['relationships']['user']['data']
+      user_id = user_data['id'].to_i
+
+      expect(user_id).to eq user.id
+      expect(user_data['type']).to eq 'users'
+    end
+
+    it 'returns image' do
+      image = data['attributes']['image']
+      expect(image['url']).to be_present
+    end
   end
 
   describe '#create' do
+    def params_with_body(body)
+      {
+        project_id: project.id,
+        task_id: task.id,
+        data: {
+          type: 'comments',
+          attributes: {
+            body: body
+          },
+          relationships: relationships
+        }
+      }
+    end
+
     let(:params) { params_with_body('New Comment') }
 
     context 'when body is present' do
@@ -58,8 +140,6 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
     end
 
     context 'with attachment' do
-      let(:file_format) { 'image/jpg' }
-      let(:file_path) { 'spec/fixtures/images/ruby.jpg' }
       let(:params) do
         params_with_body('With image').merge(
           included: {
