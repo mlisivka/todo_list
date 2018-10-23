@@ -39,7 +39,9 @@ class Api::V1::TasksController < ApplicationController
   def task_params
     params.require(:data).permit(:type, {
       attributes: [:name, :done, :due_date],
-      relationships: { project: { data: [:id, :type]}}})
+      relationships: {
+        project: { data: [:id, :type] }
+      }})
   end
 
   def task_project

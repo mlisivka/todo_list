@@ -3,6 +3,7 @@ class Api::V1::CommentsController < ApplicationController
     @comment = Comment.new(comment_attributes)
     @comment.user = User.find(comment_user[:id])
     @comment.task = Task.find(comment_task[:id])
+    @comment.image = comment_image[:image]
 
     if @comment.save
       render json: @comment, status: :created,
@@ -25,15 +26,28 @@ class Api::V1::CommentsController < ApplicationController
   end
 
   def comment_user
-    comment_relationships[:user][:data]
+    comment_relationships[:user][:data] || {}
   end
 
   def comment_task
-    comment_relationships[:task][:data]
+    comment_relationships[:task][:data] || {}
   end
 
   def comment_relationships
     comment_params[:relationships] || {}
+  end
+
+  def comment_image
+    included = included_params[:included] || {}
+    image = included[:image] || {}
+    image[:data] || {}
+  end
+
+  def included_params
+    params.permit(included: {
+      image: {
+      data: [:type, :image]
+    }})
   end
 
   def comment_params
