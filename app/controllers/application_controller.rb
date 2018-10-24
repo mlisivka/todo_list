@@ -1,6 +1,8 @@
 class ApplicationController < JSONAPI::ResourceController
   include DeviseTokenAuth::Concerns::SetUserByToken
+  protect_from_forgery with: :exception, prepend: true
   before_action :configure_permitted_parameters, if: :devise_controller?
+  skip_before_action :verify_authenticity_token
 
   def respond_with_errors(object)
     render json: {
