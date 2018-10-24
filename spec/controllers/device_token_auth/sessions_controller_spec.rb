@@ -2,13 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DeviseTokenAuth::SessionsController, type: :controller do
-  include Devise::Test::ControllerHelpers
-
-  before do
-    @request.env['devise.mapping'] = Devise.mappings[:user]
-  end
-
+RSpec.describe DeviseTokenAuth::SessionsController, type: :request do
   describe '#create' do
     let!(:user) { create(:user) }
     let(:params) do
@@ -17,7 +11,7 @@ RSpec.describe DeviseTokenAuth::SessionsController, type: :controller do
     end
 
     before do
-      post :create, params: params
+      post api_v1_user_session_path, params: params
     end
 
     context 'when username and password are correct' do

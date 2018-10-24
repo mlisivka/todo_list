@@ -2,11 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
-  before do
-    @request.env['devise.mapping'] = Devise.mappings[:user]
-  end
-
+RSpec.describe Api::V1::RegistrationsController, type: :request do
   describe '#create' do
     let(:params) do
       { username: 'admin',
@@ -16,12 +12,13 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
 
     context 'when username is unique' do
       it 'returns a http success' do
-        post :create, params: params
+        post api_v1_user_registration_path, params: params
         expect(response).to have_http_status(:ok)
       end
 
       it 'creates a new User' do
-        expect { post :create, params: params }.to change(User, :count).by(1)
+        expect { post api_v1_user_registration_path, params: params }
+          .to change(User, :count).by(1)
       end
     end
 
@@ -29,16 +26,17 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
       let!(:user) { create(:user, params) }
 
       it 'returns a http unprocessable_entity' do
-        post :create, params: params
+        post api_v1_user_registration_path, params: params
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'do not creates a new User' do
-        expect { post :create, params: params }.not_to change(User, :count)
+        expect { post api_v1_user_registration_path, params: params }
+          .not_to change(User, :count)
       end
 
       it 'returns error' do
-        post :create, params: params
+        post api_v1_user_registration_path, params: params
         expect(errors['username'][0])
           .to eq 'This login is already registered. Please, log in.'
       end
@@ -46,7 +44,8 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
 
     context 'when a record is invalid' do
       it 'returns error if username is too long' do
-        post :create, params: { username: Faker::Lorem.characters(51),
+        post api_v1_user_registration_path, params: {
+                                username: Faker::Lorem.characters(51),
                                 password: 'password',
                                 password_confirmation: 'password' }
         expect(errors['username'][0])
@@ -54,7 +53,7 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
       end
 
       it 'returns error if username is too short' do
-        post :create, params: { username: 'us',
+        post api_v1_user_registration_path, params: { username: 'us',
                                 password: 'password',
                                 password_confirmation: 'password' }
         expect(errors['username'][0])
@@ -62,7 +61,7 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
       end
 
       it 'returns error if password is too short' do
-        post :create, params: { username: 'admin',
+        post api_v1_user_registration_path, params: { username: 'admin',
                                 password: 'pass',
                                 password_confirmation: 'pass' }
         expect(errors['password'][0])
@@ -71,7 +70,7 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
       end
 
       it 'returns error if passwords does not match' do
-        post :create, params: { username: 'admin',
+        post api_v1_user_registration_path, params: { username: 'admin',
                                 password: 'password',
                                 password_confirmation: 'pass' }
         expect(errors['password_confirmation'][0])
@@ -79,21 +78,21 @@ RSpec.describe DeviseTokenAuth::RegistrationsController, type: :controller do
       end
 
       it 'returns error if username is empty' do
-        post :create, params: { username: '',
+        post api_v1_user_registration_path, params: { username: '',
                                 password: 'password',
                                 password_confirmation: 'password' }
         expect(errors['username'][0]).to eq 'The field is required.'
       end
 
       it 'returns error if password is empty' do
-        post :create, params: { username: 'admin',
+        post api_v1_user_registration_path, params: { username: 'admin',
                                 password: '',
                                 password_confirmation: 'password' }
         expect(errors['password'][0]).to eq 'The field is required.'
       end
 
       it 'returns error if password_confirmation is empty' do
-        post :create, params: { username: 'admin',
+        post api_v1_user_registration_path, params: { username: 'admin',
                                 password: 'password',
                                 password_confirmation: '' }
         expect(errors['password_confirmation'][0])
