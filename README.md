@@ -1,24 +1,24 @@
-# README
+**Heroku: https://todo-mlisivka.herokuapp.com/**
+# How to start?
+**Clone this repository and install dependecies**
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+```shell
+git clone git@github.com:mlisivka/todo_list.git
+cd todo_list/
+bundle install
+```
+**Migrate database**
+```shell
+rake db:create
+rake db:migrate
+```
+**Start server**
+```shell
+rails s
+```
+**And visit *`localhost:3000`***
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+**Run tests**
+```shell
+rspec spec
+```
