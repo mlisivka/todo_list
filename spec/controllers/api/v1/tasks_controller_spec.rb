@@ -12,6 +12,8 @@ RSpec.describe Api::V1::TasksController, type: :controller do
 
   describe '#index' do
     let!(:task) { create(:task, project: project) }
+    let!(:tasks) { create_list(:task, 3, project: project) }
+    let!(:task_with_pos) { create(:task, project: project, position: 1) }
 
     before do
       get :index, params: { project_id: project.id }
@@ -23,6 +25,23 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       id = data[0]['id'].to_i
       expect(id).to eq task.id
       expect(data[0]['type']).to eq 'tasks'
+    end
+
+    context 'when for tasks was setted priorities' do
+
+      it 'returns response with prioritates' do
+        last_data_task = data.last
+        id = last_data_task['id'].to_i
+        position = last_data_task['attributes']['position']
+
+        expect(id).to eq task_with_pos.id
+        expect(position).to eq task_with_pos.position
+      end
+
+      it 'chages position of others tasks' do
+        position = data[0]['attributes']['position']
+        expect(position).to eq task_with_pos.position + 1
+      end
     end
   end
 
@@ -206,6 +225,30 @@ RSpec.describe Api::V1::TasksController, type: :controller do
         it 'returns error' do
           task.reload
           expect(errors[0]['detail']).to eq "The time can't be in the past"
+        end
+      end
+
+      context 'with position attribute' do
+        let!(:tasks) { create_list(:task, 3, project: project) }
+        let!(:task) { create(:task, project: project) }
+        let(:params) do
+          {
+            id: task.id,
+            project_id: project.id,
+            data: {
+              type: 'tasks',
+              attributes: {
+                position: '2'
+              },
+              relationships: relationships
+            }
+          }
+        end
+
+        it 'updates position for task' do
+          patch :update, params: params
+          task.reload
+          expect(task.position).to eq 2
         end
       end
     end

@@ -7,6 +7,9 @@ Rails.application.routes.draw do
       jsonapi_resources :projects do
         jsonapi_resources :tasks do
           jsonapi_resources :comments
+          member do
+            post :set_position
+          end
         end
       end
     end

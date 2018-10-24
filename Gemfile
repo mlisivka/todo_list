@@ -47,6 +47,7 @@ gem 'devise_token_auth'
 gem 'carrierwave'
 gem 'file_validators'
 gem 'jsonapi-resources'
+gem 'acts_as_list'
 
 group :development do
   gem 'listen', '>= 3.0.5', '< 3.2'

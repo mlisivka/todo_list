@@ -42,6 +42,8 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+    acts_as_list (0.9.16)
+      activerecord (>= 3.0)
     apipie-rails (0.5.13)
       rails (>= 4.1)
     arel (9.0.0)
@@ -194,6 +196,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  acts_as_list
   apipie-rails
   bootsnap (>= 1.1.0)
   byebug
