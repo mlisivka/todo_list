@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Api::V1::RegistrationsController < DeviseTokenAuth::ApplicationController
+  include Api::V1::RegistrationsDoc
   before_action :validate_sign_up_params, only: :create
 
   def create
@@ -9,10 +10,11 @@ class Api::V1::RegistrationsController < DeviseTokenAuth::ApplicationController
     if @resource.save
       yield @resource if block_given?
 
-      render_create_success
+      render json: json_resource(Api::V1::UserResource, @resource),
+        status: :created
     else
       clean_up_passwords @resource
-      render_create_error
+      respond_with_errors(@resource)
     end
   end
 
@@ -36,21 +38,6 @@ class Api::V1::RegistrationsController < DeviseTokenAuth::ApplicationController
     else
       @resource.send(method_name, value)
     end
-  end
-
-  def render_create_success
-    render json: {
-      status: 'success',
-      data:   resource_data
-    }
-  end
-
-  def render_create_error
-    render json: {
-      status: 'error',
-      data:   resource_data,
-      errors: resource_errors
-    }, status: 422
   end
 
   private
