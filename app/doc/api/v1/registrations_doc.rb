@@ -17,7 +17,7 @@ module Api::V1::RegistrationsDoc
     param :password_confirmation, String, 'Password confirmation', required: true
 
     property :data, Hash do
-      propery :id, Integer
+      property :id, Integer
       property :type, String, 'users'
       property :attributes, Hash do
         param :username, String, 'The name of user'

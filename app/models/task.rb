@@ -9,7 +9,7 @@ class Task < ApplicationRecord
   private
 
   def due_date_cannot_be_in_the_past
-    if due_date.present? && due_date < Date.today
+    if due_date.present? && due_date < Time.now
       errors.add(:due_date, "The time can't be in the past")
     end
   end

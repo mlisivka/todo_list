@@ -5,3 +5,11 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+user = User.create(username: 'admin', password: 'password', password_confirmation: 'password', uid: rand(100))
+
+project = Project.create(name: 'Seed Project', user_id: user.id)
+
+task = Task.create(name: 'Seed Project', project_id: project.id)
+
+comment = Comment.create(body: 'Seed comment', task_id: task.id, user_id: user.id)
+
