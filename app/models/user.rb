@@ -13,7 +13,8 @@ class User < ActiveRecord::Base
     length: { maximum: 50, minimum: 3,
               too_long: "Username is too long. Maximum %{count} characters.",
               too_short: "Username is too short. Minimum %{count} characters."},
-    uniqueness: { message: 'This login is already registered. Please, log in.' }
+    uniqueness: { message: 'This login is already registered. Please, log in.',
+                  case_sensitive: false }
   validates :password,
     length: { minimum: 8,
               too_short: "Password does not meet minimal requirements. " \
