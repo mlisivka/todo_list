@@ -4,12 +4,19 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::TasksController, type: :request do
   let(:project) { create(:project) }
+  let(:task_id) { nil }
   let(:relationships) do
     {
       project: {
         data: { type: 'projects', id: project.id }
       }
     }
+  end
+  let(:params) do
+    make_params(type: 'tasks',
+                id: task_id,
+                attributes: attributes,
+                relationships: relationships)
   end
 
   describe '#index' do
@@ -63,17 +70,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
   end
 
   describe '#create' do
-    let(:params) do
-      {
-        data: {
-          type: 'tasks',
-          attributes: {
-            name: 'First Task'
-          },
-          relationships: relationships
-        }
-      }
-    end
+    let(:attributes) { { name: 'First Task' } }
 
     context 'when name is unique' do
       it 'returns http created' do
@@ -88,17 +85,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     end
 
     context 'when name is empty' do
-      let(:params) do
-        {
-          data: {
-            type: 'tasks',
-            attributes: {
-              name: ''
-            },
-            relationships: relationships
-          }
-        }
-      end
+      let(:attributes) { { name: '' } }
 
       before do
         post api_v1_project_tasks_path(project), params: params
@@ -113,18 +100,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
   end
 
   describe '#update' do
-    let(:params) do
-      {
-        data: {
-          type: 'tasks',
-          id: task_id,
-          attributes: {
-            name: 'New Name'
-          },
-          relationships: relationships
-        }
-      }
-    end
+    let(:attributes) { { name: 'New Name' } }
     let(:task_id) { task.id }
 
     before do
@@ -149,18 +125,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     end
 
     context 'with done attribute' do
-      let(:params) do
-        {
-          data: {
-            type: 'tasks',
-            id: task_id,
-            attributes: {
-              done: done
-            },
-            relationships: relationships
-          }
-        }
-      end
+      let(:attributes) { { done: done } }
 
       context 'when a task was marked as not done' do
         let(:task) { create(:task, done: false) }
@@ -189,17 +154,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
 
     context 'with due_date attribute' do
       let(:task) { create(:task) }
-      let(:params) do
-        {
-          data: {
-            type: 'tasks',
-            attributes: {
-              due_date: time
-            },
-            relationships: relationships
-          }
-        }
-      end
+      let(:attributes) { { due_date: time } }
 
       context 'when date is in the future' do
         let(:time) { (Time.now + 1.day).change(sec: 0) }
@@ -226,17 +181,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
       context 'with position attribute' do
         let!(:tasks) { create_list(:task, 3, project: project) }
         let!(:task) { create(:task, project: project) }
-        let(:params) do
-          {
-            data: {
-              type: 'tasks',
-              attributes: {
-                position: '2'
-              },
-              relationships: relationships
-            }
-          }
-        end
+        let(:attributes) { { position: '2' } }
 
         it 'updates position for task' do
           patch api_v1_project_task_path(project, task), params: params

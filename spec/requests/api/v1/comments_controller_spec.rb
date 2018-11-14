@@ -8,6 +8,8 @@ RSpec.describe Api::V1::CommentsController, type: :request do
   let(:project) { task.project }
   let(:file_format) { 'image/jpg' }
   let(:file_path) { 'spec/fixtures/images/ruby.jpg' }
+  let(:comment_id) { nil }
+  let(:included) { nil }
   let(:relationships) do
     {
       user: {
@@ -17,6 +19,13 @@ RSpec.describe Api::V1::CommentsController, type: :request do
         data: { type: 'tasks', id: task.id }
       }
     }
+  end
+  let(:params) do
+    make_params(type: 'comments',
+                id: comment_id,
+                attributes: attributes,
+                relationships: relationships,
+                included: included)
   end
 
   describe '#index' do
@@ -64,6 +73,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
       create(:comment, task: task, user: user,
                        image: fixture_file_upload(file_path, file_format))
     end
+    let(:comment_id) { comment.id }
 
     before do
       get api_v1_project_task_comment_path(project, task, comment)
@@ -100,19 +110,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
   end
 
   describe '#create' do
-    def params_with_body(body)
-      {
-        data: {
-          type: 'comments',
-          attributes: {
-            body: body
-          },
-          relationships: relationships
-        }
-      }
-    end
-
-    let(:params) { params_with_body('New Comment') }
+    let(:attributes) { { body: 'New Comment' } }
 
     context 'when body is present' do
       it 'returns http created' do
@@ -128,7 +126,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     end
 
     context 'when body is empty' do
-      let(:params) { params_with_body('') }
+      let(:attributes) { { body: '' } }
 
       before do
         post api_v1_project_task_comments_path(project, task), params: params
@@ -142,24 +140,23 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     end
 
     context 'with attachment' do
-      let(:params) do
-        params_with_body('With image').merge(
-          included: {
-            image: {
-              data: {
-                type: 'images',
-                image: fixture_file_upload(file_path, file_format)
-              }
+      let(:attributes) { { body: 'Attachment' } }
+      let(:included) do
+        {
+          image: {
+            data: {
+              type: 'images',
+              image: fixture_file_upload(file_path, file_format)
             }
           }
-        )
+        }
       end
 
       before do
         post api_v1_project_task_comments_path(project, task), params: params
       end
 
-      it_behaves_like 'returns http status', :success
+      it_behaves_like 'returns http status', :created
 
       it 'creates a new comment with image' do
         comment = Comment.last
@@ -195,6 +192,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
 
   describe '#destroy' do
     let!(:comment) { create(:comment, task: task, user: user) }
+    let(:comment_id) { comment.id }
 
     it 'returns http no_content' do
       delete api_v1_project_task_comment_path(project, task, comment)

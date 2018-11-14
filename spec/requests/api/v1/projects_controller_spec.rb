@@ -4,12 +4,19 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::ProjectsController, type: :request do
   let(:user) { create(:user) }
+  let(:project_id) { nil }
   let(:relationships) do
     {
       user: {
         data: { type: 'users', id: user.id }
       }
     }
+  end
+  let(:params) do
+    make_params(type: 'projects',
+                id: project_id,
+                attributes: attributes,
+                relationships: relationships)
   end
 
   describe '#index' do
@@ -45,17 +52,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
   end
 
   describe '#create' do
-    let(:params) do
-      {
-        data: {
-          type: 'projects',
-          attributes: {
-            name: 'First Project'
-          },
-          relationships: relationships
-        }
-      }
-    end
+    let(:attributes) { { name: 'First Project' } }
 
     context 'when name is unique' do
       it 'returns http created' do
@@ -84,17 +81,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     end
 
     context 'when name is empty' do
-      let(:params) do
-        {
-          data: {
-            type: 'projects',
-            attributes: {
-              name: ''
-            },
-            relationships: relationships
-          }
-        }
-      end
+      let(:attributes) { { name: '' } }
 
       before do
         post api_v1_projects_path, params: params
@@ -123,18 +110,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
   end
 
   describe '#update' do
-    let(:params) do
-      {
-        data: {
-          type: 'projects',
-          id: project_id,
-          attributes: {
-            name: 'New Name'
-          },
-          relationships: relationships
-        }
-      }
-    end
+    let(:attributes) { { name: 'New Name' } }
 
     before do
       patch api_v1_project_path(project_id), params: params
