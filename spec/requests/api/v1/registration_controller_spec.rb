@@ -45,25 +45,26 @@ RSpec.describe Api::V1::RegistrationsController, type: :request do
     context 'when a record is invalid' do
       it 'returns error if username is too long' do
         post api_v1_user_registration_path, params: {
-                                username: Faker::Lorem.characters(51),
-                                password: 'password',
-                                password_confirmation: 'password' }
+          username: Faker::Lorem.characters(51),
+          password: 'password',
+          password_confirmation: 'password'
+        }
         expect(errors[0]['detail'])
           .to eq 'Username is too long. Maximum 50 characters.'
       end
 
       it 'returns error if username is too short' do
         post api_v1_user_registration_path, params: { username: 'us',
-                                password: 'password',
-                                password_confirmation: 'password' }
+                                                      password: 'password',
+                                                      password_confirmation: 'password' }
         expect(errors[0]['detail'])
           .to eq 'Username is too short. Minimum 3 characters.'
       end
 
       it 'returns error if password is too short' do
         post api_v1_user_registration_path, params: { username: 'admin',
-                                password: 'pass',
-                                password_confirmation: 'pass' }
+                                                      password: 'pass',
+                                                      password_confirmation: 'pass' }
         expect(errors[0]['detail'])
           .to eq 'Password does not meet minimal requirements. ' \
             'The length should be 8 characters, alphanumeric.'
@@ -71,30 +72,30 @@ RSpec.describe Api::V1::RegistrationsController, type: :request do
 
       it 'returns error if passwords does not match' do
         post api_v1_user_registration_path, params: { username: 'admin',
-                                password: 'password',
-                                password_confirmation: 'pass' }
+                                                      password: 'password',
+                                                      password_confirmation: 'pass' }
         expect(errors[0]['detail'])
           .to eq 'Password and Confirm password fields doesn’t match.'
       end
 
       it 'returns error if username is empty' do
         post api_v1_user_registration_path, params: { username: '',
-                                password: 'password',
-                                password_confirmation: 'password' }
+                                                      password: 'password',
+                                                      password_confirmation: 'password' }
         expect(errors[0]['detail']).to eq 'The field is required.'
       end
 
       it 'returns error if password is empty' do
         post api_v1_user_registration_path, params: { username: 'admin',
-                                password: '',
-                                password_confirmation: 'password' }
+                                                      password: '',
+                                                      password_confirmation: 'password' }
         expect(errors[0]['detail']).to eq 'The field is required.'
       end
 
       it 'returns error if password_confirmation is empty' do
         post api_v1_user_registration_path, params: { username: 'admin',
-                                password: 'password',
-                                password_confirmation: '' }
+                                                      password: 'password',
+                                                      password_confirmation: '' }
         expect(errors[0]['detail'])
           .to eq 'The field is required.'
       end
