@@ -70,4 +70,5 @@ RSpec.configure do |config|
   config.include RequestSpecHelper, type: :controller
   config.include RequestSpecHelper, type: :request
   config.include ParamsHelper, type: :request
+  config.include JwtHelper
 end

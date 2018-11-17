@@ -4,12 +4,13 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::CommentsController, type: :request do
   let(:user) { create(:user) }
-  let(:task) { create(:task) }
-  let(:project) { task.project }
+  let(:project) { create(:project, user: user) }
+  let(:task) { create(:task, project: project) }
   let(:file_format) { 'image/jpg' }
   let(:file_path) { 'spec/fixtures/images/ruby.jpg' }
   let(:comment_id) { nil }
   let(:included) { nil }
+  let(:headers) { valid_headers }
   let(:relationships) do
     {
       user: {
@@ -25,7 +26,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
                 id: comment_id,
                 attributes: attributes,
                 relationships: relationships,
-                included: included)
+                included: included).to_json
   end
 
   describe '#index' do
@@ -35,7 +36,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     end
 
     before do
-      get api_v1_project_task_comments_path(project, task)
+      get api_v1_project_task_comments_path(project, task), headers: headers
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -76,7 +77,8 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     let(:comment_id) { comment.id }
 
     before do
-      get api_v1_project_task_comment_path(project, task, comment)
+      get api_v1_project_task_comment_path(project, task, comment),
+          headers: headers
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -114,13 +116,15 @@ RSpec.describe Api::V1::CommentsController, type: :request do
 
     context 'when body is present' do
       it 'returns http created' do
-        post api_v1_project_task_comments_path(project, task), params: params
+        post api_v1_project_task_comments_path(project, task),
+             params: params, headers: headers
         expect(response).to have_http_status(:created)
       end
 
       it 'creates a new comment' do
         expect do
-          post api_v1_project_task_comments_path(project, task), params: params
+          post api_v1_project_task_comments_path(project, task),
+               params: params, headers: headers
         end.to change(Comment, :count).by(1)
       end
     end
@@ -129,7 +133,8 @@ RSpec.describe Api::V1::CommentsController, type: :request do
       let(:attributes) { { body: '' } }
 
       before do
-        post api_v1_project_task_comments_path(project, task), params: params
+        post api_v1_project_task_comments_path(project, task),
+             params: params, headers: headers
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
@@ -141,19 +146,23 @@ RSpec.describe Api::V1::CommentsController, type: :request do
 
     context 'with attachment' do
       let(:attributes) { { body: 'Attachment' } }
+      let(:image) { fixture_file_upload(file_path, file_format) }
       let(:included) do
         {
           image: {
             data: {
               type: 'images',
-              image: fixture_file_upload(file_path, file_format)
+              content_type: image.content_type,
+              filename: image.original_filename,
+              file_data: Base64.encode64(image.read)
             }
           }
         }
       end
 
       before do
-        post api_v1_project_task_comments_path(project, task), params: params
+        post api_v1_project_task_comments_path(project, task),
+             params: params, headers: headers
       end
 
       it_behaves_like 'returns http status', :created
@@ -195,13 +204,16 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     let(:comment_id) { comment.id }
 
     it 'returns http no_content' do
-      delete api_v1_project_task_comment_path(project, task, comment)
+      delete api_v1_project_task_comment_path(project, task, comment),
+             headers: headers
       expect(response).to have_http_status(:no_content)
     end
 
     it 'deletes a comment' do
-      expect { delete api_v1_project_task_comment_path(project, task, comment) }
-        .to change(Comment, :count).by(-1)
+      expect do
+        delete api_v1_project_task_comment_path(project, task, comment),
+               headers: headers
+      end.to change(Comment, :count).by(-1)
     end
   end
 end

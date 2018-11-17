@@ -3,8 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::TasksController, type: :request do
+  let(:user) { create(:user) }
   let(:project) { create(:project) }
   let(:task_id) { nil }
+  let(:headers) { valid_headers }
   let(:relationships) do
     {
       project: {
@@ -16,7 +18,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     make_params(type: 'tasks',
                 id: task_id,
                 attributes: attributes,
-                relationships: relationships)
+                relationships: relationships).to_json
   end
 
   describe '#index' do
@@ -25,7 +27,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     let!(:task_with_pos) { create(:task, project: project, position: 1) }
 
     before do
-      get api_v1_project_tasks_path(project)
+      get api_v1_project_tasks_path(project), headers: headers
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -57,7 +59,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     let!(:task) { create(:task, project: project) }
 
     before do
-      get api_v1_project_task_path(project, task)
+      get api_v1_project_task_path(project, task), headers: headers
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -74,13 +76,16 @@ RSpec.describe Api::V1::TasksController, type: :request do
 
     context 'when name is unique' do
       it 'returns http created' do
-        post api_v1_project_tasks_path(project), params: params
+        post api_v1_project_tasks_path(project),
+             params: params, headers: headers
         expect(response).to have_http_status(:created)
       end
 
       it 'creates a new Task' do
-        expect { post api_v1_project_tasks_path(project), params: params }
-          .to change(Task, :count).by(1)
+        expect do
+          post api_v1_project_tasks_path(project),
+               params: params, headers: headers
+        end.to change(Task, :count).by(1)
       end
     end
 
@@ -88,7 +93,8 @@ RSpec.describe Api::V1::TasksController, type: :request do
       let(:attributes) { { name: '' } }
 
       before do
-        post api_v1_project_tasks_path(project), params: params
+        post api_v1_project_tasks_path(project),
+             params: params, headers: headers
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
@@ -104,7 +110,8 @@ RSpec.describe Api::V1::TasksController, type: :request do
     let(:task_id) { task.id }
 
     before do
-      patch api_v1_project_task_path(project, task_id), params: params
+      patch api_v1_project_task_path(project, task_id),
+            params: params, headers: headers
     end
 
     context 'when there is a task' do
@@ -184,7 +191,8 @@ RSpec.describe Api::V1::TasksController, type: :request do
         let(:attributes) { { position: '2' } }
 
         it 'updates position for task' do
-          patch api_v1_project_task_path(project, task), params: params
+          patch api_v1_project_task_path(project, task),
+                params: params, headers: headers
           task.reload
           expect(task.position).to eq 2
         end
@@ -196,13 +204,14 @@ RSpec.describe Api::V1::TasksController, type: :request do
     let!(:task) { create(:task, project: project) }
 
     it 'returns http no_content' do
-      delete api_v1_project_task_path(project, task)
+      delete api_v1_project_task_path(project, task), headers: headers
       expect(response).to have_http_status(:no_content)
     end
 
     it 'deletes a task' do
-      expect { delete api_v1_project_task_path(project, task) }
-        .to change(Task, :count).by(-1)
+      expect do
+        delete api_v1_project_task_path(project, task), headers: headers
+      end.to change(Task, :count).by(-1)
     end
   end
 end

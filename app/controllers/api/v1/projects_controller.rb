@@ -3,7 +3,7 @@ class Api::V1::ProjectsController < ApplicationController
   before_action :find_project, only: [:show, :destroy, :update]
 
   def index
-    @projects = Project.all
+    @projects = current_user.projects
     render json: json_resources(Api::V1::ProjectResource, @projects)
   end
 
@@ -13,11 +13,11 @@ class Api::V1::ProjectsController < ApplicationController
 
   def create
     @project = Project.new(project_attributes)
-    @project.user = User.find(project_user[:id])
+    @project.user = current_user
 
     if @project.save
       render json: json_resource(Api::V1::ProjectResource, @project),
-        status: :created
+             status: :created
     else
       respond_with_errors(@project)
     end
@@ -40,13 +40,13 @@ class Api::V1::ProjectsController < ApplicationController
   private
 
   def find_project
-    @project = Project.find_by_id(params[:id])
+    @project = current_user.projects.find_by_id(params[:id])
   end
 
   def project_params
     params.require(:data).permit(:type, {
       attributes: [:name],
-      relationships: { user: { data: [:id, :type]}}})
+      relationships: { user: { data: [:id, :type] }}})
   end
 
   def project_attributes
@@ -55,9 +55,5 @@ class Api::V1::ProjectsController < ApplicationController
 
   def project_relationships
     project_params[:relationships] || {}
-  end
-
-  def project_user
-    project_relationships[:user][:data]
   end
 end

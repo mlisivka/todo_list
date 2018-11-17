@@ -5,10 +5,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1, path: '' do
-      mount_devise_token_auth_for 'User', at: 'auth',
-        controllers: {
-          registrations: 'api/v1/registrations'
-        }
+      post 'auth/sign_in', to: 'sessions#create', as: 'session'
+      post 'auth/sign_up', to: 'registrations#create', as: 'registration'
 
       jsonapi_resources :projects do
         jsonapi_resources :tasks do

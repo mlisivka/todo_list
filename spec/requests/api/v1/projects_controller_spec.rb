@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Api::V1::ProjectsController, type: :request do
   let(:user) { create(:user) }
   let(:project_id) { nil }
+  let(:headers) { valid_headers }
   let(:relationships) do
     {
       user: {
@@ -16,14 +17,14 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     make_params(type: 'projects',
                 id: project_id,
                 attributes: attributes,
-                relationships: relationships)
+                relationships: relationships).to_json
   end
 
   describe '#index' do
     let!(:project) { create(:project, user: user) }
 
     before do
-      get api_v1_projects_path
+      get api_v1_projects_path, headers: headers
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -33,13 +34,16 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       expect(id).to eq project.id
       expect(data[0]['type']).to eq 'projects'
     end
+
+    it 'returns only for this user' do
+    end
   end
 
   describe '#show' do
     let!(:project) { create(:project, user: user) }
 
     before do
-      get api_v1_project_path(project)
+      get api_v1_project_path(project), headers: headers
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -56,12 +60,12 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
 
     context 'when name is unique' do
       it 'returns http created' do
-        post api_v1_projects_path, params: params
+        post api_v1_projects_path, params: params, headers: headers
         expect(response).to have_http_status(:created)
       end
 
       it 'creates a new Project' do
-        expect { post api_v1_projects_path, params: params }
+        expect { post api_v1_projects_path, params: params, headers: headers }
           .to change(Project, :count).by(1)
       end
     end
@@ -69,7 +73,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     context 'when name is not unique' do
       before do
         create(:project, name: 'First Project', user: user)
-        post api_v1_projects_path, params: params
+        post api_v1_projects_path, params: params, headers: headers
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
@@ -84,7 +88,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       let(:attributes) { { name: '' } }
 
       before do
-        post api_v1_projects_path, params: params
+        post api_v1_projects_path, params: params, headers: headers
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
@@ -99,12 +103,12 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     let!(:project) { create(:project, user: user) }
 
     it 'returns http no_content' do
-      delete api_v1_project_path(project)
+      delete api_v1_project_path(project), headers: headers
       expect(response).to have_http_status(:no_content)
     end
 
     it 'deletes a project' do
-      expect { delete api_v1_project_path(project) }
+      expect { delete api_v1_project_path(project), headers: headers }
         .to change(Project, :count).by(-1)
     end
   end
@@ -113,7 +117,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     let(:attributes) { { name: 'New Name' } }
 
     before do
-      patch api_v1_project_path(project_id), params: params
+      patch api_v1_project_path(project_id), params: params, headers: headers
     end
 
     context 'when there is a project' do

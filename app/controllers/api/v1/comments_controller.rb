@@ -4,23 +4,25 @@ class Api::V1::CommentsController < ApplicationController
 
   def index
     @comments = Comment.all
-    render json: json_resources(Api::V1::CommentResource, @comments, options: { include: ['task', 'user'] })
+    render json: json_resources(Api::V1::CommentResource, @comments,
+                                options: { include: ['task', 'user'] })
 
   end
 
   def show
-    render json: json_resource(Api::V1::CommentResource, @comment, options: { include: ['task', 'user'] })
+    render json: json_resource(Api::V1::CommentResource, @comment,
+                               options: { include: ['task', 'user'] })
   end
 
   def create
     @comment = Comment.new(comment_attributes)
-    @comment.user = User.find(comment_user[:id])
-    @comment.task = Task.find(comment_task[:id])
-    @comment.image = comment_image[:image]
+    @comment.user = current_user
+    @comment.task = Task.find(params[:task_id])
+    @comment.image = image_file
 
     if @comment.save
       render json: json_resource(Api::V1::CommentResource, @comment),
-        status: :created
+             status: :created
     else
       respond_with_errors(@comment)
     end
@@ -41,28 +43,25 @@ class Api::V1::CommentsController < ApplicationController
     comment_params[:attributes] || {}
   end
 
-  def comment_user
-    comment_relationships[:user][:data] || {}
-  end
-
-  def comment_task
-    comment_relationships[:task][:data] || {}
-  end
-
-  def comment_relationships
-    comment_params[:relationships] || {}
-  end
-
-  def comment_image
+  def image_file
     included = included_params[:included] || {}
     image = included[:image] || {}
-    image[:data] || {}
+    image_data = image[:data]
+    if image_data
+      data = StringIO.new(Base64.decode64(image_data[:file_data]))
+
+      data.class.class_eval { attr_accessor :original_filename, :content_type }
+      data.original_filename = image_data[:filename]
+      data.content_type = image_data[:content_type]
+
+      data
+    end
   end
 
   def included_params
     params.permit(included: {
       image: {
-      data: [:type, :image]
+        data: [:type, :filename, :content_type, :file_data]
     }})
   end
 
