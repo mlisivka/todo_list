@@ -109,6 +109,12 @@ RSpec.describe Api::V1::CommentsController, type: :request do
       image = data['attributes']['image']
       expect(image['url']).to be_present
     end
+
+    context 'when comment not found' do
+      let(:comment) { build(:comment, task: task, id: 0) }
+
+      it_behaves_like 'returns http status', :not_found
+    end
   end
 
   describe '#create' do
@@ -214,6 +220,17 @@ RSpec.describe Api::V1::CommentsController, type: :request do
         delete api_v1_project_task_comment_path(project, task, comment),
                headers: headers
       end.to change(Comment, :count).by(-1)
+    end
+
+    context 'when comment not found' do
+      let(:comment) { build(:comment, task: task, id: 0) }
+
+      before do
+        delete api_v1_project_task_comment_path(project, task, comment),
+               headers: headers
+      end
+
+      it_behaves_like 'returns http status', :not_found
     end
   end
 end

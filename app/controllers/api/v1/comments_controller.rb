@@ -4,12 +4,14 @@ class Api::V1::CommentsController < ApplicationController
 
   def index
     @comments = Comment.all
+    authorize @comments
     render json: json_resources(Api::V1::CommentResource, @comments,
                                 options: { include: ['task', 'user'] })
 
   end
 
   def show
+    authorize @comment
     render json: json_resource(Api::V1::CommentResource, @comment,
                                options: { include: ['task', 'user'] })
   end
@@ -19,6 +21,7 @@ class Api::V1::CommentsController < ApplicationController
     @comment.user = current_user
     @comment.task = Task.find(params[:task_id])
     @comment.image = image_file
+    authorize @comment
 
     if @comment.save
       render json: json_resource(Api::V1::CommentResource, @comment),
@@ -29,6 +32,7 @@ class Api::V1::CommentsController < ApplicationController
   end
 
   def destroy
+    authorize @comment
     @comment.destroy
     head :no_content
   end
@@ -37,6 +41,7 @@ class Api::V1::CommentsController < ApplicationController
 
   def find_comment
     @comment = Comment.find(params[:id])
+    head :not_found unless @comment
   end
 
   def comment_attributes
