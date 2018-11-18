@@ -44,6 +44,7 @@ end
 gem 'apipie-rails'
 gem 'jwt'
 gem 'simple_command'
+gem 'pundit'
 gem 'carrierwave'
 gem 'file_validators'
 gem 'jsonapi-resources'

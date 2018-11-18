@@ -1,10 +1,13 @@
 class ApplicationController < JSONAPI::ResourceController
+  include Pundit
+  include ExceptionHandler
+
   protect_from_forgery with: :exception, prepend: true
+
   skip_before_action :verify_authenticity_token
   before_action :authenticate_request
-  attr_reader :current_user
 
-  include ExceptionHandler
+  attr_reader :current_user
 
   def json_resource(klass, record, context = nil, options: {})
     JSONAPI::ResourceSerializer.new(klass, options)

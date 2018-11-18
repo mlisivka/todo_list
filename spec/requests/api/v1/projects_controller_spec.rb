@@ -53,6 +53,12 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       expect(id).to eq project.id
       expect(data['type']).to eq 'projects'
     end
+
+    context 'when project not found' do
+      let(:project) { build(:project, id: 0) }
+
+      it_behaves_like 'returns http status', :not_found
+    end
   end
 
   describe '#create' do
@@ -111,18 +117,27 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       expect { delete api_v1_project_path(project), headers: headers }
         .to change(Project, :count).by(-1)
     end
+
+    context 'when project not found' do
+      let(:project) { build(:project, id: 0) }
+
+      before do
+        delete api_v1_project_path(project), headers: headers
+      end
+
+      it_behaves_like 'returns http status', :not_found
+    end
   end
 
   describe '#update' do
     let(:attributes) { { name: 'New Name' } }
 
     before do
-      patch api_v1_project_path(project_id), params: params, headers: headers
+      patch api_v1_project_path(project), params: params, headers: headers
     end
 
     context 'when there is a project' do
       let(:project) { create(:project, user: user) }
-      let(:project_id) { project.id }
 
       it_behaves_like 'returns http status', :success
 
@@ -133,7 +148,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     end
 
     context 'when project not found' do
-      let(:project_id) { 999 }
+      let(:project) { build(:project, id: 0) }
 
       it_behaves_like 'returns http status', :not_found
     end
