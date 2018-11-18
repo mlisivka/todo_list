@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::TasksController, type: :request do
   let(:user) { create(:user) }
-  let(:project) { create(:project) }
+  let(:project) { create(:project, user: user) }
   let(:task_id) { nil }
   let(:headers) { valid_headers }
   let(:relationships) do
@@ -68,6 +68,12 @@ RSpec.describe Api::V1::TasksController, type: :request do
       id = data['id'].to_i
       expect(id).to eq task.id
       expect(data['type']).to eq 'tasks'
+    end
+
+    context 'when project not found' do
+      let(:task) { build(:task, id: 0) }
+
+      it_behaves_like 'returns http status', :not_found
     end
   end
 
@@ -135,7 +141,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
       let(:attributes) { { done: done } }
 
       context 'when a task was marked as not done' do
-        let(:task) { create(:task, done: false) }
+        let(:task) { create(:task, project: project, done: false) }
         let(:done) { true }
 
         it_behaves_like 'returns http status', :success
@@ -147,7 +153,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
       end
 
       context 'when a task was marked as done' do
-        let(:task) { create(:task, done: true) }
+        let(:task) { create(:task, project: project, done: true) }
         let(:done) { false }
 
         it_behaves_like 'returns http status', :success
@@ -160,7 +166,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     end
 
     context 'with due_date attribute' do
-      let(:task) { create(:task) }
+      let(:task) { create(:task, project: project) }
       let(:attributes) { { due_date: time } }
 
       context 'when date is in the future' do
@@ -212,6 +218,16 @@ RSpec.describe Api::V1::TasksController, type: :request do
       expect do
         delete api_v1_project_task_path(project, task), headers: headers
       end.to change(Task, :count).by(-1)
+    end
+
+    context 'when project not found' do
+      let(:task) { build(:task, id: 0) }
+
+      before do
+        delete api_v1_project_task_path(project, task), headers: headers
+      end
+
+      it_behaves_like 'returns http status', :not_found
     end
   end
 end

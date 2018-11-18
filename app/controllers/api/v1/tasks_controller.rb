@@ -3,17 +3,20 @@ class Api::V1::TasksController < ApplicationController
   before_action :find_task, only: [:show, :destroy, :update]
 
   def index
-    @tasks = Task.all
+    @tasks = Project.find(params[:project_id]).tasks
+    authorize @tasks
     render json: json_resources(Api::V1::TaskResource, @tasks)
   end
 
   def show
+    authorize @task
     render json: json_resource(Api::V1::TaskResource, @task)
   end
 
   def create
     @task = Task.new(task_attributes)
     @task.project = Project.find(task_project[:id])
+    authorize @task
 
     if @task.save
       render json: json_resource(Api::V1::TaskResource, @task),
@@ -24,18 +27,16 @@ class Api::V1::TasksController < ApplicationController
   end
 
   def update
-    if @task
-      if @task.update_attributes(task_attributes)
-        head :ok
-      else
-        respond_with_errors(@task)
-      end
+    authorize @task
+    if @task.update_attributes(task_attributes)
+      head :ok
     else
-      head :not_found
+      respond_with_errors(@task)
     end
   end
 
   def destroy
+    authorize @task
     @task.destroy
     head :no_content
   end
@@ -44,6 +45,7 @@ class Api::V1::TasksController < ApplicationController
 
   def find_task
     @task = Task.find_by_id(params[:id])
+    head :not_found unless @task
   end
 
   def task_params
