@@ -12,9 +12,10 @@ module Api::V1::RegistrationsDoc
   end
 
   def_param_group :user do
-    param :username, String, 'The name of user', required: true
-    param :password, String, 'Password', required: true
-    param :password_confirmation, String, 'Password confirmation', required: true
+    param :user, Hash, only_in: :request, required: true do
+      param :username, String, 'The name of user', required: true
+      param :password, String, 'Password', required: true
+    end
 
     property :data, Hash do
       property :id, Integer
@@ -25,7 +26,7 @@ module Api::V1::RegistrationsDoc
     end
   end
 
-  api :POST, '/auth', 'Register a User'
+  api :POST, '/auth/sign_up', 'Register a User'
   param_group :user
   returns code: 201 do
     param_group :user

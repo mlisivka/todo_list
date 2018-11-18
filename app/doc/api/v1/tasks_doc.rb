@@ -40,16 +40,19 @@ module Api::V1::TasksDoc
   end
 
   api :GET, '/tasks', 'Get all tasks'
+  header 'Authentication', 'Auth header', required: true
   returns code: 200, array_of: :task
   def index; end
 
   api :GET, '/tasks/:id', 'Get a task'
+  header 'Authentication', 'Auth header', required: true
   returns code: 200 do
     param_group :task
   end
   def show; end
 
   api :POST, '/tasks', 'Create a task'
+  header 'Authentication', 'Auth header', required: true
   param_group :task
   error 422, 'The name field is required.'
   error 422, "The time can't be in the past"
@@ -59,6 +62,7 @@ module Api::V1::TasksDoc
   def create; end
 
   api :PATCH, '/tasks/:id', 'Update a task'
+  header 'Authentication', 'Auth header', required: true
   param_group :task
   error 404, 'The task is not found.'
   error 422, 'The name field is required.'
@@ -68,6 +72,7 @@ module Api::V1::TasksDoc
   def update; end
 
   api :DELETE, '/tasks/:id', 'Delete a task'
+  header 'Authentication', 'Auth header', required: true
   returns code: 204
   def destroy; end
 end

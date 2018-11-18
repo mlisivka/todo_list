@@ -21,7 +21,9 @@ module Api::V1::CommentsDoc
         param :image, Hash do
           param :data, Hash do
             param :type, String, 'images', required: true
-            param :url, String, 'Path to file'
+            param :content_type, String, 'Content type of file'
+            param :filename, String, 'File name'
+            param :file_data, String, 'Bytes flow'
           end
         end
       end
@@ -57,6 +59,7 @@ module Api::V1::CommentsDoc
 
 
   api :GET, '/comments', 'Get all comments'
+  header 'Authentication', 'Auth header', required: true
   returns code: 200, array_of: :comment
   def index; end
 
@@ -67,6 +70,7 @@ module Api::V1::CommentsDoc
   def show; end
 
   api :POST, '/comments', 'Create a comment'
+  header 'Authentication', 'Auth header', required: true
   param_group :comment
   error 422, 'The body field is required.'
   error 422, 'File too large. Max 10 MB'
@@ -77,6 +81,7 @@ module Api::V1::CommentsDoc
   def create; end
 
   api :PATCH, '/comments/:id', 'Update a comment'
+  header 'Authentication', 'Auth header', required: true
   param_group :comment
   error 404, 'The comment is not found.'
   error 422, 'The body field is required.'
@@ -88,6 +93,7 @@ module Api::V1::CommentsDoc
   def update; end
 
   api :DELETE, '/comments/:id', 'Delete a comment'
+  header 'Authentication', 'Auth header', required: true
   returns code: 204
   def destroy; end
 end
