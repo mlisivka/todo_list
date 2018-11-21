@@ -146,7 +146,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
 
         it_behaves_like 'returns http status', :success
 
-        it 'mark as done' do
+        it 'marks as done' do
           task.reload
           expect(task.done).to be_truthy
         end
@@ -158,7 +158,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
 
         it_behaves_like 'returns http status', :success
 
-        it 'mark as not done' do
+        it 'marks as not done' do
           task.reload
           expect(task.done).to be_falsey
         end

@@ -6,6 +6,7 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
   let(:project) { task.project }
   let(:file_format) { 'image/jpg' }
   let(:file_path) { 'spec/fixtures/images/ruby.jpg' }
+  let(:headers) { valid_headers }
   let(:relationships) do
     {
       user: {
@@ -17,10 +18,14 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
     }
   end
 
+  before do
+    request.headers.merge! headers
+  end
+
   describe '#index' do
     let!(:comment) do
       create(:comment, task: task, user: user,
-        image: fixture_file_upload(file_path, file_format))
+                       image: fixture_file_upload(file_path, file_format))
     end
 
     before do
@@ -60,11 +65,12 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
   describe '#show' do
     let!(:comment) do
       create(:comment, task: task, user: user,
-        image: fixture_file_upload(file_path, file_format))
+                       image: fixture_file_upload(file_path, file_format))
     end
 
     before do
-      get :show, params: { id: comment.id, project_id: project.id, task_id: task.id }
+      get :show,
+          params: { id: comment.id, project_id: project.id, task_id: task.id }
     end
 
     it_behaves_like 'respond body JSON with attributes'
@@ -140,13 +146,16 @@ RSpec.describe Api::V1::CommentsController, type: :controller do
     end
 
     context 'with attachment' do
+      let(:image) { fixture_file_upload(file_path, file_format) }
       let(:params) do
         params_with_body('With image').merge(
           included: {
             image: {
               data: {
                 type: 'images',
-                image: fixture_file_upload(file_path, file_format)
+                content_type: image.content_type,
+                filename: image.original_filename,
+                file_data: Base64.encode64(image.read)
               }
             }
           }

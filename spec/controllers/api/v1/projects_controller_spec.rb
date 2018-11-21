@@ -2,12 +2,17 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::ProjectsController, type: :controller do
   let(:user) { create(:user) }
+  let(:headers) { valid_headers }
   let(:relationships) do
     {
       user: {
-        data: {type: 'users', id: user.id}
+        data: { type: 'users', id: user.id }
       }
     }
+  end
+
+  before do
+    request.headers.merge! headers
   end
 
   describe '#index' do
@@ -75,7 +80,8 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
       it_behaves_like 'returns http status', :unprocessable_entity
 
       it 'returns error' do
-        expect(errors[0]['detail']).to eq 'The project with such name does already exist.'
+        expect(errors[0]['detail'])
+          .to eq 'The project with such name does already exist.'
       end
     end
 
@@ -113,7 +119,7 @@ RSpec.describe Api::V1::ProjectsController, type: :controller do
     end
 
     it 'deletes a project' do
-      expect{ delete :destroy, params: { id: project.id } }
+      expect { delete :destroy, params: { id: project.id } }
         .to change(Project, :count).by(-1)
     end
   end

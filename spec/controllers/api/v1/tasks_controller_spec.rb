@@ -1,13 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::TasksController, type: :controller do
-  let(:project) { create(:project) }
+  let(:user) { create(:user) }
+  let(:project) { create(:project, user: user) }
+  let(:headers) { valid_headers }
   let(:relationships) do
     {
       project: {
-        data: {type: 'projects', id: project.id}
+        data: { type: 'projects', id: project.id }
       }
     }
+  end
+
+  before do
+    request.headers.merge! headers
   end
 
   describe '#index' do
@@ -28,7 +34,6 @@ RSpec.describe Api::V1::TasksController, type: :controller do
     end
 
     context 'when for tasks was setted priorities' do
-
       it 'returns response with prioritates' do
         last_data_task = data.last
         id = last_data_task['id'].to_i
@@ -166,24 +171,24 @@ RSpec.describe Api::V1::TasksController, type: :controller do
       end
 
       context 'when a task was marked as not done' do
-        let(:task) { create(:task, done: false) }
+        let(:task) { create(:task, project: project, done: false) }
         let(:done) { true }
 
         it_behaves_like 'returns http status', :success
 
-        it 'mark as done' do
+        it 'marks as done' do
           task.reload
           expect(task.done).to be_truthy
         end
       end
 
       context 'when a task was marked as done' do
-        let(:task) { create(:task, done: true) }
+        let(:task) { create(:task, project: project, done: true) }
         let(:done) { false }
 
         it_behaves_like 'returns http status', :success
 
-        it 'mark as not done' do
+        it 'marks as not done' do
           task.reload
           expect(task.done).to be_falsey
         end
@@ -191,7 +196,7 @@ RSpec.describe Api::V1::TasksController, type: :controller do
     end
 
     context 'with due_date attribute' do
-      let(:task) { create(:task) }
+      let(:task) { create(:task, project: project) }
       let(:params) do
         {
           id: task.id,
@@ -263,8 +268,9 @@ RSpec.describe Api::V1::TasksController, type: :controller do
     end
 
     it 'deletes a task' do
-      expect{ delete :destroy, params: { id: task.id, project_id: project.id } }
-        .to change(Task, :count).by(-1)
+      expect do
+        delete :destroy, params: { id: task.id, project_id: project.id }
+      end.to change(Task, :count).by(-1)
     end
   end
 end
