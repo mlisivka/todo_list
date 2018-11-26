@@ -31,12 +31,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     end
 
     it_behaves_like 'respond body JSON with attributes'
-
-    it 'returns correct data' do
-      id = data[0]['id'].to_i
-      expect(id).to eq task.id
-      expect(data[0]['type']).to eq 'tasks'
-    end
+    it_behaves_like 'returns correct data by', 'task'
 
     context 'when for tasks was setted priorities' do
       it 'returns response with prioritates' do
@@ -63,12 +58,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
     end
 
     it_behaves_like 'respond body JSON with attributes'
-
-    it 'returns correct data' do
-      id = data['id'].to_i
-      expect(id).to eq task.id
-      expect(data['type']).to eq 'tasks'
-    end
+    it_behaves_like 'returns correct data by', 'task'
 
     context 'when project not found' do
       let(:task) { build(:task, id: 0) }
@@ -104,6 +94,7 @@ RSpec.describe Api::V1::TasksController, type: :request do
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
+      it_behaves_like 'returns correct data by', 'task'
 
       it 'returns error' do
         expect(errors[0]['detail']).to eq 'The field is required.'

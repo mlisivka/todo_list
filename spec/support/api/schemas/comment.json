@@ -1,0 +1,179 @@
+{
+  "id": "file:/comment.json#",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Comment's JSON:API Schema",
+  "description": "Schema for comment's responses",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/success"
+    },
+    {
+      "$ref": "file:/failure.json#/definitions/failure"
+    }
+  ],
+
+  "definitions": {
+    "success": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/data"
+        },
+        "included": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          },
+          "uniqueItems": true
+        },
+        "links": {
+          "allOf": [
+            {
+              "$ref": "file:/links.json#/definitions/links"
+            }
+          ]
+        },
+        "jsonapi": {
+          "$ref": "#/definitions/jsonapi"
+        }
+      },
+      "additionalProperties": false
+    },
+    "data": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/resource"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          },
+          "uniqueItems": true
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["comments", "users", "tasks"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/attributes"
+            },
+            {
+              "$ref": "#/definitions/user-attributes"
+            },
+            {
+              "$ref": "#/definitions/task-attributes"
+            }
+          ]
+        },
+        "relationships": {
+          "$ref": "file:/relationships.json#/definitions/relationships"
+        },
+        "links": {
+          "$ref": "file:/links.json#/definitions/links"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "attributes": {
+      "type": "object",
+      "required": [
+        "body",
+        "image",
+        "created-at"
+      ],
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "image": {
+          "$ref": "#/definitions/image"
+        },
+        "created-at": {
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^(?!relationships$|links$|id$|type$)\\w[-\\w_]*$": {
+        }
+      },
+      "additionalProperties": false
+    },
+    "user-attributes": {
+      "type": "object",
+      "required": [
+        "username"
+      ],
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^(?!relationships$|links$|id$|type$)\\w[-\\w_]*$": {
+        }
+      },
+      "additionalProperties": false
+    },
+    "task-attributes": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^(?!relationships$|links$|id$|type$)\\w[-\\w_]*$": {
+        }
+      },
+      "additionalProperties": false
+    },
+    "image": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "jsonapi": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

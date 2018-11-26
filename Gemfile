@@ -39,6 +39,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'database_cleaner'
   gem 'faker'
+  gem 'json_matchers'
 end
 
 gem 'apipie-rails'

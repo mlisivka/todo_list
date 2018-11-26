@@ -1,0 +1,84 @@
+{
+  "id": "file:/relationships.json#",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "relationships": {
+      "type": "object",
+      "patternProperties": {
+        "^(?!id$|type$)\\w[-\\w_]*$": {
+          "properties": {
+            "links": {
+              "$ref": "#/definitions/relationshipLinks"
+            },
+            "data": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/relationshipToOne"
+                },
+                {
+                  "$ref": "#/definitions/relationshipToMany"
+                }
+              ]
+            }
+          },
+          "anyOf": [
+            {"required": ["data"]},
+            {"required": ["links"]}
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationshipLinks": {
+      "type": "object",
+      "properties": {
+        "self": {
+          "$ref": "file:/links.json#/definitions/link"
+        },
+        "related": {
+          "$ref": "file:/links.json#/definitions/link"
+        }
+      },
+      "additionalProperties": true
+    },
+    "relationshipToOne": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/empty"
+        },
+        {
+          "$ref": "#/definitions/linkage"
+        }
+      ]
+    },
+    "relationshipToMany": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/linkage"
+      },
+      "uniqueItems": true
+    },
+    "empty": {
+      "type": "null"
+    },
+    "linkage": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

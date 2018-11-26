@@ -40,12 +40,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     end
 
     it_behaves_like 'respond body JSON with attributes'
-
-    it 'returns correct data' do
-      id = data[0]['id'].to_i
-      expect(data[0]['type']).to eq 'comments'
-      expect(id).to eq comment.id
-    end
+    it_behaves_like 'returns correct data by', 'comment'
 
     it 'returns with task relationsps' do
       task_data = data[0]['relationships']['task']['data']
@@ -82,6 +77,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
     end
 
     it_behaves_like 'respond body JSON with attributes'
+    it_behaves_like 'returns correct data by', 'comment'
 
     it 'returns correct data' do
       id = data['id'].to_i
@@ -144,6 +140,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
+      it_behaves_like 'returns correct data by', 'comment'
 
       it 'returns error' do
         expect(errors[0]['detail']).to eq 'The field is required.'
@@ -172,6 +169,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
       end
 
       it_behaves_like 'returns http status', :created
+      it_behaves_like 'returns correct data by', 'comment'
 
       it 'creates a new comment with image' do
         comment = Comment.last
@@ -182,6 +180,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
         let(:file_format) { 'application/pdf' }
 
         it_behaves_like 'returns http status', :unprocessable_entity
+        it_behaves_like 'returns correct data by', 'comment'
 
         it 'returns error' do
           expect(errors[0]['detail'])
@@ -195,6 +194,7 @@ RSpec.describe Api::V1::CommentsController, type: :request do
         let(:file_path) { 'spec/fixtures/images/high.jpg' }
 
         it_behaves_like 'returns http status', :unprocessable_entity
+        it_behaves_like 'returns correct data by', 'comment'
 
         it 'returns error' do
           expect(errors[0]['detail'])

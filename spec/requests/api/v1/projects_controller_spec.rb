@@ -28,12 +28,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     end
 
     it_behaves_like 'respond body JSON with attributes'
-
-    it 'returns correct data' do
-      id = data[0]['id'].to_i
-      expect(id).to eq project.id
-      expect(data[0]['type']).to eq 'projects'
-    end
+    it_behaves_like 'returns correct data by', 'project'
 
     it 'returns only for this user' do
     end
@@ -47,12 +42,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
     end
 
     it_behaves_like 'respond body JSON with attributes'
-
-    it 'returns correct data' do
-      id = data['id'].to_i
-      expect(id).to eq project.id
-      expect(data['type']).to eq 'projects'
-    end
+    it_behaves_like 'returns correct data by', 'project'
 
     context 'when project not found' do
       let(:project) { build(:project, id: 0) }
@@ -83,6 +73,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
+      it_behaves_like 'returns correct data by', 'project'
 
       it 'returns error' do
         expect(errors[0]['detail'])
@@ -98,6 +89,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       end
 
       it_behaves_like 'returns http status', :unprocessable_entity
+      it_behaves_like 'returns correct data by', 'project'
 
       it 'returns error' do
         expect(errors[0]['detail']).to eq 'The field is required.'
@@ -140,6 +132,7 @@ RSpec.describe Api::V1::ProjectsController, type: :request do
       let(:project) { create(:project, user: user) }
 
       it_behaves_like 'returns http status', :success
+      it_behaves_like 'returns correct data by', 'project'
 
       it 'changes a project name' do
         project.reload

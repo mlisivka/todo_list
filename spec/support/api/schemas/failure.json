@@ -1,0 +1,59 @@
+{
+  "id": "file:/failure.json#",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "failure": {
+      "type": "object",
+      "required": [
+        "errors"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/error"
+          },
+          "uniqueItems": true
+        },
+        "links": {
+          "$ref": "file:/links.json#/definitions/links"
+        }
+      },
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "links": {
+          "$ref": "file:/links.json#/definitions/links"
+        },
+        "status": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "pointer": {
+              "type": "string"
+            },
+            "parameter": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "id": "file:/task.json#",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Task's JSON:API Schema",
+  "description": "Schema for task's responses",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/success"
+    },
+    {
+      "$ref": "file:/failure.json#/definitions/failure"
+    }
+  ],
+
+  "definitions": {
+    "success": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/data"
+        },
+        "included": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          },
+          "uniqueItems": true
+        },
+        "links": {
+          "allOf": [
+            {
+              "$ref": "file:/links.json#/definitions/links"
+            }
+          ]
+        },
+        "jsonapi": {
+          "$ref": "#/definitions/jsonapi"
+        }
+      },
+      "additionalProperties": false
+    },
+    "data": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/resource"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          },
+          "uniqueItems": true
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["tasks"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "$ref": "#/definitions/attributes"
+        },
+        "relationships": {
+          "$ref": "file:/relationships.json#/definitions/relationships"
+        },
+        "links": {
+          "$ref": "file:/links.json#/definitions/links"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "attributes": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^(?!relationships$|links$|id$|type$)\\w[-\\w_]*$": {
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "jsonapi": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

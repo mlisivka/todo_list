@@ -1,0 +1,34 @@
+{
+  "id": "file:/links.json#",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "links": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/link"
+      }
+    },
+    "link": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        {
+          "type": "object",
+          "required": [
+            "href"
+          ],
+          "properties": {
+            "href": {
+              "type": "string",
+              "format": "uri-reference"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
