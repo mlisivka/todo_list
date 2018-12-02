@@ -3,11 +3,10 @@ class Api::V1::CommentsController < ApplicationController
   before_action :find_comment, only: [:show, :destroy]
 
   def index
-    @comments = Comment.all
+    @comments = Comment.where(task_id: params[:task_id])
     authorize @comments
     render json: json_resources(Api::V1::CommentResource, @comments,
                                 options: { include: ['task', 'user'] })
-
   end
 
   def show
@@ -62,15 +61,17 @@ class Api::V1::CommentsController < ApplicationController
     params.permit(included: {
       image: {
         data: [:type, :filename, :content_type, :file_data]
-    }})
+      }
+    })
   end
 
   def comment_params
-    params.require(:data).permit(:type, {
+    params.require(:data).permit(:type,
       attributes: [:body],
       relationships: {
         task: { data: [:id, :type] },
         user: { data: [:id, :type] }
-      }})
+      }
+    )
   end
 end

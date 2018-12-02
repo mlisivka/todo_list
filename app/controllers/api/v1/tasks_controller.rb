@@ -3,7 +3,7 @@ class Api::V1::TasksController < ApplicationController
   before_action :find_task, only: [:show, :destroy, :update]
 
   def index
-    @tasks = Project.find(params[:project_id]).tasks
+    @tasks = Task.where(project_id: params[:project_id])
     authorize @tasks
     render json: json_resources(Api::V1::TaskResource, @tasks)
   end

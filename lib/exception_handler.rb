@@ -28,15 +28,15 @@ module ExceptionHandler
     }, status: status
   end
 
-  def four_twenty_two(e)
-    respond_with_errors(e)
+  def four_twenty_two(error)
+    respond_with_errors(error)
   end
 
-  def unauthorized_request(e)
-    respond_with_errors(e, 401)
+  def unauthorized_request(error)
+    respond_with_errors(error, 401)
   end
 
-  def record_not_found(e)
-    respond_with_errors(e, 404)
+  def record_not_found(error)
+    respond_with_errors(error, 404)
   end
 end

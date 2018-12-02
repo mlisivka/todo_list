@@ -3,8 +3,7 @@ class Api::V1::ProjectsController < ApplicationController
   before_action :find_project, only: [:show, :destroy, :update]
 
   def index
-    @projects = current_user.projects
-    authorize @projects
+    @projects = policy_scope(Project)
     render json: json_resources(Api::V1::ProjectResource, @projects)
   end
 
@@ -52,9 +51,5 @@ class Api::V1::ProjectsController < ApplicationController
 
   def project_attributes
     project_params[:attributes] || {}
-  end
-
-  def project_relationships
-    project_params[:relationships] || {}
   end
 end

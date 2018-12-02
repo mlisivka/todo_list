@@ -28,8 +28,5 @@ class CommentPolicy < ApplicationPolicy
   end
 
   class Scope < Scope
-    def resolve
-      scope.all
-    end
   end
 end

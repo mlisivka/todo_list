@@ -19,7 +19,7 @@ class ProjectPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      scope.all
+      user.projects
     end
   end
 end
