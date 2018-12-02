@@ -44,23 +44,18 @@ class Api::V1::CommentsController < ApplicationController
     head :not_found unless @comment
   end
 
+  def image_file
+    ImageDecoder.new(image_params).decode if image_params
+  end
+
   def comment_attributes
     comment_params[:attributes] || {}
   end
 
-  def image_file
+  def image_params
     included = included_params[:included] || {}
     image = included[:image] || {}
-    image_data = image[:data]
-    if image_data
-      data = StringIO.new(Base64.decode64(image_data[:file_data]))
-
-      data.class.class_eval { attr_accessor :original_filename, :content_type }
-      data.original_filename = image_data[:filename]
-      data.content_type = image_data[:content_type]
-
-      data
-    end
+    image[:data]
   end
 
   def included_params
